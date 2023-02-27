@@ -1,0 +1,12 @@
+{
+  "name": "jira-release",
+  "version": "1.0.0",
+  "description": "Github Action to create Jira release",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seonghyeonkimm/jira-release.git"
+  },
+  "author": "seonghyeonkimm",
+  "license": "ISC",
+  "homepage": "https://github.com/seonghyeonkimm/jira-release#readme"
+}

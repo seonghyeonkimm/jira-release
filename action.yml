@@ -1,0 +1,60 @@
+name: Jira Release from commits
+author: seonghyeonkimm
+description: Create Jira Release based on commit messages
+
+inputs:
+  releaseName:
+    description: Title to be used when creating jira release
+    required: true
+  requiredCommitMessage:
+    description: String to be included in commit message
+    required: true
+  jiraProjectPrefix:
+    description: Jira project prefix
+    required: true
+  jiraUserEmail:
+    description: Jira user email
+    required: true
+  jiraApiToken:
+    description: Jira api token
+    required: true
+  jiraSubdomain:
+    description: your-subdomain.atlassian.net
+    required: true
+  jiraProjectId:
+    description: your jira project ID
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: '0'
+
+    - name: Set Environment Variables
+      shell: bash
+      run: |
+        RELEASE_NAME="$(date '+%Y%m%d%H%M') - ${{ inputs.releaseName }}"
+        FILTERED_COMMIT_MESSAGE=$(git log --pretty=format:"%s" ${{ github.event.before }}..${{ github.event.after }} | grep "${{ inputs.requiredCommitMessage }}")
+        COMMIT_MESSAGE=$(echo "$FILTERED_COMMIT_MESSAGE" | sed -E 's/.+:/-/g' | sed 's/$/\\n/' | tr -d '\n')
+        JIRA_TICKETS=$(echo "$FILTERED_COMMIT_MESSAGE" | grep -o '${{ inputs.jiraProjectPrefix }}\-[0-9]\+' | sort -u | paste -sd ",")
+
+        echo "RELEASE_NAME=$RELEASE_NAME" >> $GITHUB_ENV
+        echo "COMMIT_MESSAGE_ENV_VAR<<EOF" >> $GITHUB_ENV
+        echo "$COMMIT_MESSAGE" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+        echo "JIRA_TICKETS=$JIRA_TICKETS" >> $GITHUB_ENV
+
+    - name: Create Jira Release
+      uses: armona/jira-release-actions@v2.0.6
+      with:
+        create: true
+        email: ${{ inputs.jiraUserEmail }}
+        api_token: ${{ inputs.jiraApiToken }}
+        subdomain: ${{ inputs.jiraSubdomain }}
+        jira_project: ${{ inputs.jiraProjectId }}
+        tickets: ${{ env.JIRA_TICKETS }}
+        release_name: ${{ env.RELEASE_NAME }}
+
