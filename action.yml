@@ -28,6 +28,9 @@ inputs:
   jiraProjectId:
     description: your jira project ID
     required: true
+  timezone:
+    description: timezone to be used for creating release date
+    required: true
 outputs:
   releaseNotes:
     description: "notes that is generated from commit messages"
@@ -45,7 +48,7 @@ runs:
       id: set-env-vars
       shell: bash
       run: |
-        RELEASE_NAME="$(date '+%Y%m%d%H%M') - ${{ inputs.releaseName }}"
+        RELEASE_NAME="$(TZ=${{ inputs.timezone }} date '+%Y%m%d%H%M') - ${{ inputs.releaseName }}"
         FILTERED_COMMIT_MESSAGE=$(git log --pretty=format:"%s" ${{ github.event.before }}..${{ github.event.after }} | grep "${{ inputs.requiredCommitMessage }}")
         COMMIT_MESSAGE=$(echo "$FILTERED_COMMIT_MESSAGE" | sed -E 's/.+:/-/g' | sed 's/$/\\n/' | tr -d '\n')
         JIRA_TICKETS=$(echo "$FILTERED_COMMIT_MESSAGE" | grep -o '${{ inputs.jiraProjectPrefix }}\-[0-9]\+' | sort -u | paste -sd ",")
