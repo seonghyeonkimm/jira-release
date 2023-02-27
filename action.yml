@@ -2,6 +2,10 @@ name: Jira Release from commits
 author: seonghyeonkimm
 description: Create Jira Release based on commit messages
 
+branding:
+  icon: 'arrow-up-circle'
+  color: 'green'
+
 inputs:
   releaseName:
     description: Title to be used when creating jira release
