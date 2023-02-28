@@ -77,7 +77,7 @@ runs:
         fi
 
     - name: Create Jira Release
-      if: ${{ env.HAS_JIRA_TICKETS = 'true' }}
+      if: ${{ env.HAS_JIRA_TICKETS == 'true' }}
       uses: armona/jira-release-actions@v2.0.6
       with:
         create: true
