@@ -35,6 +35,9 @@ outputs:
   releaseNotes:
     description: "notes that is generated from commit messages"
     value: ${{ steps.set-env-vars.outputs.releaseNotes }}
+  hasJiraTickets:
+    description: "boolean to show whether to create release or not"
+    value: ${{ steps.set-env-vars.outputs.hasJiraTickets }}
 
 runs:
   using: "composite"
@@ -64,9 +67,13 @@ runs:
         echo "EOF" >> $GITHUB_OUTPUT
 
         if [ -z "$JIRA_TICKETS" ]; then
-          echo "HAS_JIRA_TICKETS=false" >> $GITHUB_ENV
+          HAS_JIRA_TICKETS=false
+          echo "HAS_JIRA_TICKETS=$HAS_JIRA_TICKETS" >> $GITHUB_ENV
+          echo "hasJiraTickets=$HAS_JIRA_TICKETS" >> $GITHUB_OUTPUT
         else
-          echo "HAS_JIRA_TICKETS=true" >> $GITHUB_ENV
+          HAS_JIRA_TICKETS=true
+          echo "HAS_JIRA_TICKETS=$HAS_JIRA_TICKETS" >> $GITHUB_ENV
+          echo "hasJiraTickets=$HAS_JIRA_TICKETS" >> $GITHUB_OUTPUT
         fi
 
     - name: Create Jira Release
