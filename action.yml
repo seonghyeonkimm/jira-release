@@ -52,7 +52,7 @@ runs:
       shell: bash
       run: |
         RELEASE_NAME="$(TZ=${{ inputs.timezone }} date '+%Y%m%d%H%M') - ${{ inputs.releaseName }}"
-        FILTERED_COMMIT_MESSAGE=$(git log --pretty=format:"%s" -100  | grep "${{ inputs.requiredCommitMessage }}" || true)
+        FILTERED_COMMIT_MESSAGE=$(git log --pretty=format:"%s" ${{ github.event.before }}..${{ github.event.after }} | grep "${{ inputs.requiredCommitMessage }}" || true)
         COMMIT_MESSAGE=$(echo "$FILTERED_COMMIT_MESSAGE" | sed -E 's/.+:/-/g' | sed 's/$/\\n/' | tr -d '\n')
         JIRA_TICKETS=$(echo "$FILTERED_COMMIT_MESSAGE" | grep -o '${{ inputs.jiraProjectPrefix }}\-[0-9]\+' || true | sort -u | paste -sd "," -)
 
